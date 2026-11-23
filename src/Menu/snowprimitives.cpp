@@ -62,7 +62,7 @@ namespace Christmas::snowPrimitives {
         // Unlike the original small snow drifts, Christmas Eve adds two large
         // panoramic meshes. Never share the Note renderer's live material with
         // those meshes: isolate snow rendering from gameplay/environment state.
-        auto* sourceSnowMaterial = noteRenderer->material;
+        Material* sourceSnowMaterial = noteRenderer->get_material();
         if (!sourceSnowMaterial) {
             INFO("[SnowMaterial] Note material unavailable; skipping snow piles");
             Object::Destroy(snowPrimitives->gameObject);
