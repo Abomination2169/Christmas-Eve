@@ -12,4 +12,4 @@ Quest mod tooling and template provenance: **Lauriethefish**, **danrouse**, and 
 
 ## Audio, artwork, and separate permissions
 
-For individual soundtrack, performer, recording, sound effect, inspiration, Pixabay and Creative Commons credits, read [MUSIC_LICENSES.md](MUSIC_LICENSES.md). The public source snapshot **omits the four audio files**. GPLv3 licensing of the C++ source does not grant rights in separately licensed audio or artwork.
+For individual soundtrack, performer, recording, sound effect, inspiration, Pixabay and Creative Commons credits, read [MUSIC_LICENSES.md](MUSIC_LICENSES.md). The public source snapshot **includes four audio files** under `FileCopies/`; their underlying redistribution rights have not all been independently verified. GPLv3 licensing of the C++ source does not grant rights in separately licensed audio or artwork.
