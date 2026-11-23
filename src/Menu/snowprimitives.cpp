@@ -49,7 +49,18 @@ namespace Christmas::snowPrimitives {
         // Create a white sphere template
         GameObject* whiteSphere = GameObject::CreatePrimitive(PrimitiveType::Sphere);
         whiteSphere->transform->parent = snowPrimitives->transform;
-        whiteSphere->GetComponent<MeshRenderer*>()->material = noteRenderer->material;
+        // Unlike the original small snow drifts, Christmas Eve adds two large
+        // panoramic meshes. Never share the Note renderer's live material with
+        // those meshes: isolate snow rendering from gameplay/environment state.
+        auto* sourceSnowMaterial = noteRenderer->material;
+        if (!sourceSnowMaterial) {
+            INFO("[SnowMaterial] Note material unavailable; skipping snow piles");
+            Object::Destroy(snowPrimitives->gameObject);
+            snowPrimitives = nullptr;
+            return;
+        }
+        auto* isolatedSnowMaterial = Object::Instantiate(sourceSnowMaterial);
+        whiteSphere->GetComponent<MeshRenderer*>()->material = isolatedSnowMaterial;
         Object::DestroyImmediate(whiteSphere->GetComponent<SphereCollider*>());
         MeshCollider* whiteSphereCollider = whiteSphere->AddComponent<MeshCollider*>();
         whiteSphereCollider->convex = true;
