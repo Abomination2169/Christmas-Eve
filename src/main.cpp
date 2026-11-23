@@ -99,6 +99,8 @@ MAKE_HOOK_MATCH(OverrideEnvironmentColors, &GlobalNamespace::LightWithIdManager:
 MAKE_HOOK_MATCH(SnowInit, &GlobalNamespace::MainMenuViewController::DidActivate, void, GlobalNamespace::MainMenuViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
     SnowInit(self, firstActivation, addedToHierarchy, screenSystemEnabling);
 
+    // Reassert our private snow color whenever the menu reappears after a song.
+    Christmas::snowPrimitives::RestoreSnowMaterialColor();
     if(!firstActivation) return;
 
     if(getModConfig().EnableSnowflakes.GetValue()) Christmas::snowflakes::CreateSnowflakes();
@@ -159,6 +161,7 @@ MAKE_HOOK_MATCH(ChristmasFireworkLights, &GlobalNamespace::FireworkItemControlle
 // RankModel::Rank is E=0, D=1, C=2, B=3, A=4, S=5, SS=6, SSS=7.
 MAKE_HOOK_MATCH(ChristmasEveResultsActivate, &GlobalNamespace::ResultsViewController::DidActivate, void, GlobalNamespace::ResultsViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
     ChristmasEveResultsActivate(self, firstActivation, addedToHierarchy, screenSystemEnabling);
+    Christmas::snowPrimitives::RestoreSnowMaterialColor();
     auto* completed = self ? self->__cordl_internal_get__levelCompletionResults() : nullptr;
     const bool rankSOrAbove = completed && completed->__cordl_internal_get_rank().value__ >= 5;
     christmasResultsEligible = rankSOrAbove;
