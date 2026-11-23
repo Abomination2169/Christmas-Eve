@@ -76,9 +76,7 @@ MAKE_HOOK_MATCH(SongPreviewPlayer_CrossfadeTo, static_cast<void(SongPreviewPlaye
 MAKE_HOOK_MATCH(FestiveLogoInit, &GlobalNamespace::FlickeringNeonSign::Start, void, GlobalNamespace::FlickeringNeonSign* self) {
     FestiveLogoInit(self);
 
-    // Diagnostic: isolate startup turquoise by leaving the original neon colors untouched.
-    // All Christmas Eve geometry, audio, aurora and results effects remain enabled.
-    // if(getModConfig().EnableCustomLogo.GetValue()) Christmas::customLogo::ApplyFestiveLogoColors();
+    if(getModConfig().EnableCustomLogo.GetValue()) Christmas::customLogo::ApplyFestiveLogoColors();
     // Build 77: retry preview when the actual neon anchor comes into existence.
     if (UnityEngine::SceneManagement::SceneManager::GetActiveScene().name != "GameCore")
         Christmas::aurora::PreviewMenu();
@@ -86,11 +84,8 @@ MAKE_HOOK_MATCH(FestiveLogoInit, &GlobalNamespace::FlickeringNeonSign::Start, vo
 
 // Very quick and dirty way to override the menu light colors
 MAKE_HOOK_MATCH(OverrideEnvironmentColors, &GlobalNamespace::LightWithIdManager::SetColorForId, void, GlobalNamespace::LightWithIdManager* self, int lightId, UnityEngine::Color color) {
-    // Restrict the white lighting override to the actual menu scene.
-    // Results and failure screens may be active outside GameCore; recoloring
-    // their light IDs can tint the nearby floor after any song ends.
-    const bool mainMenu = UnityEngine::SceneManagement::SceneManager::GetActiveScene().name == "MainMenu";
-    if(!getModConfig().EnableWhiteEnv.GetValue() || !mainMenu)
+    const bool gameplay = UnityEngine::SceneManagement::SceneManager::GetActiveScene().name == "GameCore";
+    if(!getModConfig().EnableWhiteEnv.GetValue() || gameplay)
         OverrideEnvironmentColors(self, lightId, color);
     else {
         // Force the environment color to be white
@@ -101,8 +96,6 @@ MAKE_HOOK_MATCH(OverrideEnvironmentColors, &GlobalNamespace::LightWithIdManager:
 MAKE_HOOK_MATCH(SnowInit, &GlobalNamespace::MainMenuViewController::DidActivate, void, GlobalNamespace::MainMenuViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
     SnowInit(self, firstActivation, addedToHierarchy, screenSystemEnabling);
 
-    // Reassert our private snow color whenever the menu reappears after a song.
-    Christmas::snowPrimitives::RestoreSnowMaterialColor();
     if(!firstActivation) return;
 
     if(getModConfig().EnableSnowflakes.GetValue()) Christmas::snowflakes::CreateSnowflakes();
@@ -163,7 +156,6 @@ MAKE_HOOK_MATCH(ChristmasFireworkLights, &GlobalNamespace::FireworkItemControlle
 // RankModel::Rank is E=0, D=1, C=2, B=3, A=4, S=5, SS=6, SSS=7.
 MAKE_HOOK_MATCH(ChristmasEveResultsActivate, &GlobalNamespace::ResultsViewController::DidActivate, void, GlobalNamespace::ResultsViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
     ChristmasEveResultsActivate(self, firstActivation, addedToHierarchy, screenSystemEnabling);
-    Christmas::snowPrimitives::RestoreSnowMaterialColor();
     auto* completed = self ? self->__cordl_internal_get__levelCompletionResults() : nullptr;
     const bool rankSOrAbove = completed && completed->__cordl_internal_get_rank().value__ >= 5;
     christmasResultsEligible = rankSOrAbove;
@@ -204,10 +196,7 @@ MOD_EXTERN_FUNC void late_load() noexcept {
 
     INFO("Installing hooks...");
     INSTALL_HOOK(PaperLogger, FestiveLogoInit);
-    // Diagnostic build: leave the original White Environment option intact,
-    // but do not install the environment color override while investigating
-    // blue warning-screen and yellow gameplay/results floor colors.
-    // INSTALL_HOOK(PaperLogger, OverrideEnvironmentColors);
+    INSTALL_HOOK(PaperLogger, OverrideEnvironmentColors);
     INSTALL_HOOK(PaperLogger, SnowInit);
     INSTALL_HOOK(PaperLogger, ChristmasEveResultsActivate);
     INSTALL_HOOK(PaperLogger, ChristmasEveResultsDeactivate);
