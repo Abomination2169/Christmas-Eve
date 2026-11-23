@@ -22,6 +22,16 @@ using namespace UnityEngine;
 namespace Christmas::snowPrimitives {
 
     SafePtrUnity<GameObject> snowPrimitives;
+    SafePtrUnity<Material> snowMaterial;
+
+    void RestoreSnowMaterialColor() {
+        // Snow must not inherit the last song's note/floor tint.
+        // Only touch our private material, never the gameplay Note material.
+        if (!snowMaterial) return;
+        snowMaterial->SetColor("_Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
+        snowMaterial->SetColor("_SimpleColor", Color(1.0f, 1.0f, 1.0f, 1.0f));
+    }
+
 
     void CreateSnowPrimitives() {
         // Don't create snow primitives if already created
@@ -60,6 +70,8 @@ namespace Christmas::snowPrimitives {
             return;
         }
         auto* isolatedSnowMaterial = Object::Instantiate(sourceSnowMaterial);
+        snowMaterial = isolatedSnowMaterial;
+        RestoreSnowMaterialColor();
         whiteSphere->GetComponent<MeshRenderer*>()->material = isolatedSnowMaterial;
         Object::DestroyImmediate(whiteSphere->GetComponent<SphereCollider*>());
         MeshCollider* whiteSphereCollider = whiteSphere->AddComponent<MeshCollider*>();
@@ -537,7 +549,8 @@ namespace Christmas::snowPrimitives {
     }
 
     void DestroySnowPrimitives() {
-        GameObject::Destroy(snowPrimitives->gameObject);
+        if (snowPrimitives) GameObject::Destroy(snowPrimitives->gameObject);
+        snowMaterial = nullptr;
     }
 
 }
