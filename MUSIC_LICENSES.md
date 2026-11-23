@@ -1,6 +1,6 @@
 # Christmas Eve v1.0.0 — audio credits and redistribution status
 
-This private release candidate bundles four Ogg Vorbis files. Credit is provided below, but **public distribution has not been cleared** for every track. The QMOD stores the audio as technically extractable files.
+The private v1.0.0 Build #131 bundles four Ogg Vorbis files. **This public source snapshot omits all four audio files** pending redistribution review. Credits are provided below, but **public redistribution has not been cleared** for every track. The private QMOD stores the audio as technically extractable files.
 
 ## Menu music
 
@@ -25,7 +25,7 @@ This private release candidate bundles four Ogg Vorbis files. Credit is provided
 
    **License:** [Pixabay Content License](https://pixabay.com/service/license-summary/). This sound effect is incorporated into the complete, free, functioning Christmas Eve Beat Saber QMOD as a one-shot results-screen effect. **It is not distributed as a standalone sound-effect collection.** Pixabay restricts standalone redistribution, including extraction and republication of the original sound file. The bundled audio is a component of this creative mod. No additional individual permission from DRAGON-STUDIO is claimed. The creator publicly welcomes personal and commercial use and asks users not to send individual permission requests. This notice follows the attribution and incorporation approach used for the DRAGON-STUDIO effects in Halloween Theme v1.0.1; it does not claim an exemption from applicable Pixabay restrictions.
 
-## Publication hold
+## Audio redistribution status
 
 - Pixabay Content License: https://pixabay.com/service/license-summary/
 - The project owner reports that Pixabay responded positively about use of tracks in projects. The exact correspondence and its scope—including standalone/extractable files—remain unverified.
