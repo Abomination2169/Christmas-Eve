@@ -23,7 +23,7 @@ Music and sound credits include HD-Studio, Kevin MacLeod, DRAGON-STUDIO, and Chr
 The Christmas Lights recording was inspired by 90's Christmas light music with slide show 
 https://youtu.be/kwiBpHOmwL4?si=M3pKGpleU7crpjuz
 
-**Source and binaries:** Browse the [source code and build configuration](https://github.com/Abomination2169/Christmas-Eve/tree/main), or visit the [releases page](https://github.com/Abomination2169/Christmas-Eve/releases) for downloadable QMODs and source archives. For **v1.0.0**, see the [tagged source](https://github.com/Abomination2169/Christmas-Eve/tree/v1.0.0), [release page and source archives](https://github.com/Abomination2169/Christmas-Eve/releases/tag/v1.0.0), or [download Christmas.Eve.qmod directly](https://github.com/Abomination2169/Christmas-Eve/releases/download/v1.0.0/Christmas.Eve.qmod). For each binary release, use the matching version/tag of the source, not necessarily the latest `main` branch. The source supplied for a QMOD must correspond to that build; release assets and source archives require review to confirm this.
+**Source and binaries:** The [GitHub repository](https://github.com/Abomination2169/Christmas-Eve) contains the mod's source and build configuration; the [releases page](https://github.com/Abomination2169/Christmas-Eve/releases) provides downloadable QMODs and source archives. For each binary release, use the matching version/tag of the source, not necessarily the latest `main` branch. The source supplied for a QMOD must correspond to that build; release assets and source archives require review to confirm this.
 
 ## Attribution and modifications
 
