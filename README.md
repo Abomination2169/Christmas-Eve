@@ -2,14 +2,6 @@
 
 ![Christmas Eve preview](ChristmasEve-README.png)
 
-> **In Loving Memory**
->
-> This aurora is dedicated to my grandmother, who passed away on November 23, 2026.
->
-> May its gentle lights shine in remembrance of her love, her life, and the memories that will forever remain.
->
-> *Until we meet again, beneath the lights.* ❤️
-
 Celebrate Christmas Eve on a peaceful, snowy alpine winter night.
 
 Based on the fantastic Christmas Mod by Vcmikuu and CatsaCode.
@@ -17,6 +9,14 @@ Based on the fantastic Christmas Mod by Vcmikuu and CatsaCode.
 Note: Development assisted with use of A.I. Please support talented artists and coders whenever possible.
 
 Compatible with: Beat Saber 1.40.8 (Quest)
+
+> **In Loving Memory**
+>
+> The aurora seen during S rank celebration is dedicated to my grandmother, who passed away on November 23, 2026.
+>
+> May its gentle lights shine in remembrance of her love, her life, and the memories that will forever remain.
+>
+> *Until we meet again, beneath the lights.* ❤️
 
 ## License and source code
 
