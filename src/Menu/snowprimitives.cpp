@@ -22,16 +22,6 @@ using namespace UnityEngine;
 namespace Christmas::snowPrimitives {
 
     SafePtrUnity<GameObject> snowPrimitives;
-    SafePtrUnity<Material> snowMaterial;
-
-    void RestoreSnowMaterialColor() {
-        // Snow must not inherit the last song's note/floor tint.
-        // Only touch our private material, never the gameplay Note material.
-        if (!snowMaterial) return;
-        snowMaterial->SetColor("_Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
-        snowMaterial->SetColor("_SimpleColor", Color(1.0f, 1.0f, 1.0f, 1.0f));
-    }
-
 
     void CreateSnowPrimitives() {
         // Don't create snow primitives if already created
@@ -59,20 +49,7 @@ namespace Christmas::snowPrimitives {
         // Create a white sphere template
         GameObject* whiteSphere = GameObject::CreatePrimitive(PrimitiveType::Sphere);
         whiteSphere->transform->parent = snowPrimitives->transform;
-        // Unlike the original small snow drifts, Christmas Eve adds two large
-        // panoramic meshes. Never share the Note renderer's live material with
-        // those meshes: isolate snow rendering from gameplay/environment state.
-        Material* sourceSnowMaterial = noteRenderer->get_material();
-        if (!sourceSnowMaterial) {
-            INFO("[SnowMaterial] Note material unavailable; skipping snow piles");
-            Object::Destroy(snowPrimitives->gameObject);
-            snowPrimitives = nullptr;
-            return;
-        }
-        auto* isolatedSnowMaterial = Object::Instantiate(sourceSnowMaterial);
-        snowMaterial = isolatedSnowMaterial;
-        RestoreSnowMaterialColor();
-        whiteSphere->GetComponent<MeshRenderer*>()->material = isolatedSnowMaterial;
+        whiteSphere->GetComponent<MeshRenderer*>()->material = noteRenderer->material;
         Object::DestroyImmediate(whiteSphere->GetComponent<SphereCollider*>());
         MeshCollider* whiteSphereCollider = whiteSphere->AddComponent<MeshCollider*>();
         whiteSphereCollider->convex = true;
@@ -549,8 +526,7 @@ namespace Christmas::snowPrimitives {
     }
 
     void DestroySnowPrimitives() {
-        if (snowPrimitives) GameObject::Destroy(snowPrimitives->gameObject);
-        snowMaterial = nullptr;
+        GameObject::Destroy(snowPrimitives->gameObject);
     }
 
 }
