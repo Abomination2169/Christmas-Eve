@@ -1,2 +1,3 @@
-# The four release audio tracks are omitted from the public source snapshot.
+# The four tracked Ogg tracks are included in this public repository.
+# Ignore only newly generated/untracked Ogg files by default.
 *.ogg
