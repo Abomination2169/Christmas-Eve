@@ -1,0 +1,35 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Lauriethefish/QuestPatcher.QMod/main/QuestPatcher.QMod/Resources/qmod.schema.json",
+  "_QPVersion": "0.1.1",
+  "name": "${mod_name}",
+  "id": "${mod_id}",
+  "coverImage": "cover.png",
+  "author": "laynia",
+  "version": "1.0.0",
+  "packageId": "com.beatgames.beatsaber",
+  "packageVersion": "1.40.8_7379",
+  "description": "Celebrate Christmas Eve on a peaceful, snowy alpine winter night.",
+  "dependencies": [],
+  "modFiles": [
+    "${binary}"
+  ],
+  "libraryFiles": [],
+  "fileCopies": [
+    {
+      "name": "we_wish_you_a_merry_christmas.ogg",
+      "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Christmas/we_wish_you_a_merry_christmas.ogg"
+    },
+    {
+      "name": "dance_of_the_sugar_plum_fairy.ogg",
+      "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Christmas/dance_of_the_sugar_plum_fairy.ogg"
+    },
+    {
+      "name": "M668_Christmas_Lights_5m22_click_removed.ogg",
+      "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Christmas/M668_Christmas_Lights_5m22_click_removed.ogg"
+    },
+    {
+      "name": "christmas-eve-aurora-jingle.ogg",
+      "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Christmas/christmas-eve-aurora-jingle.ogg"
+    }
+  ]
+}
