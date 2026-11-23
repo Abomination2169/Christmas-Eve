@@ -76,7 +76,9 @@ MAKE_HOOK_MATCH(SongPreviewPlayer_CrossfadeTo, static_cast<void(SongPreviewPlaye
 MAKE_HOOK_MATCH(FestiveLogoInit, &GlobalNamespace::FlickeringNeonSign::Start, void, GlobalNamespace::FlickeringNeonSign* self) {
     FestiveLogoInit(self);
 
-    if(getModConfig().EnableCustomLogo.GetValue()) Christmas::customLogo::ApplyFestiveLogoColors();
+    // Diagnostic: isolate startup turquoise by leaving the original neon colors untouched.
+    // All Christmas Eve geometry, audio, aurora and results effects remain enabled.
+    // if(getModConfig().EnableCustomLogo.GetValue()) Christmas::customLogo::ApplyFestiveLogoColors();
     // Build 77: retry preview when the actual neon anchor comes into existence.
     if (UnityEngine::SceneManagement::SceneManager::GetActiveScene().name != "GameCore")
         Christmas::aurora::PreviewMenu();
