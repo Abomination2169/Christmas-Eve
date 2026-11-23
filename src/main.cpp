@@ -85,6 +85,15 @@ MAKE_HOOK_MATCH(FestiveLogoInit, &GlobalNamespace::FlickeringNeonSign::Start, vo
 // Very quick and dirty way to override the menu light colors
 MAKE_HOOK_MATCH(OverrideEnvironmentColors, &GlobalNamespace::LightWithIdManager::SetColorForId, void, GlobalNamespace::LightWithIdManager* self, int lightId, UnityEngine::Color color) {
     const bool gameplay = UnityEngine::SceneManagement::SceneManager::GetActiveScene().name == "GameCore";
+    // Diagnostic only: record the first environment-light update in each scene mode.
+    // This hook does not establish which renderer owns the player floor.
+    static int previousMode = -1;
+    const int currentMode = gameplay ? 1 : 0;
+    if (previousMode != currentMode) {
+        INFO("[FloorColorDiagnostic] LightWithIdManager update mode={} lightId={} whiteEnv={}",
+             gameplay ? "GameCore" : "Menu", lightId, getModConfig().EnableWhiteEnv.GetValue());
+        previousMode = currentMode;
+    }
     if(!getModConfig().EnableWhiteEnv.GetValue() || gameplay)
         OverrideEnvironmentColors(self, lightId, color);
     else {
