@@ -46,7 +46,7 @@ namespace Christmas::aurora {
         float opacity = 0.0f;
 
         constexpr const char* jinglePath =
-            "/sdcard/ModData/com.beatgames.beatsaber/Mods/Christmas/christmas-eve-aurora-jingle.ogg";
+            "/sdcard/ModData/com.beatgames.beatsaber/Mods/ChristmasEve/christmas-eve-aurora-jingle.ogg";
 
         void PlayBellOnce(unsigned int requestedAppearance) {
             if (!showing || requestedAppearance != appearanceId) {
