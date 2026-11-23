@@ -24,16 +24,6 @@ The combined mod's code is distributed under the GNU General Public License, ver
 
 **Status:** Public source, selected artwork, and four Ogg audio files are present in this repository. **No public QMOD release is attached.** The audio remains subject to the separate licenses and unresolved redistribution questions documented in [MUSIC_LICENSES.md](MUSIC_LICENSES.md). Private Build #129 was reported working on Quest; this public source and any new verification build are **not** independently Quest-tested.
 
-## Features
-
-- Festive red-and-green BEAT SABER neon logo, including the preserved custom E artwork.
-- Evergreen garland and warm-gold sparkles, candy cane, decorated tree and presents.
-- Snowy alpine panorama, foreground snowdrifts and layered falling snow.
-- Three Christmas menu music tracks, with one track selected per menu-music session.
-- Three gently animated PNG-backed aurora bands on the results screen **only** for S, SS or SSS rank, with a one-shot bell jingle.
-- S/SS/SSS aurora results suppress firework particles, explosion sounds and firework-associated light flashes. Lower ranks retain their existing behavior.
-- Original Christmas Eve environment lighting (no experimental midnight/emerald menu recoloring).
-
 Compatible with **Beat Saber Quest 1.40.8_7379**. Internal mod ID: `christmas`; QMOD version: **1.0.0**.
 
 ## Authors and attribution
