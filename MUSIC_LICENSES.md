@@ -1,6 +1,6 @@
 # Christmas Eve v1.0.0 — audio credits and redistribution status
 
-The private v1.0.0 Build #131 bundles four Ogg Vorbis files. **This public source snapshot omits all four audio files** pending redistribution review. Credits are provided below, but **public redistribution has not been cleared** for every track. The private QMOD stores the audio as technically extractable files.
+The public source repository currently contains all four Ogg Vorbis files, as does private v1.0.0 Build #131. These are technically extractable, including from a QMOD. The credits below identify their stated provenance; **not all underlying redistribution rights have been independently verified**, and the presence of these files in the repository should not be read as a statement of clearance.
 
 ## Menu music
 
@@ -27,8 +27,9 @@ The private v1.0.0 Build #131 bundles four Ogg Vorbis files. **This public sourc
 
 ## Audio redistribution status
 
+- All four referenced Ogg files currently exist in public `FileCopies/`, regardless of the unresolved questions below. This notice is documentary, not a grant of rights.
 - Pixabay Content License: https://pixabay.com/service/license-summary/
 - The project owner reports that Pixabay responded positively about use of tracks in projects. The exact correspondence and its scope—including standalone/extractable files—remain unverified.
 - The project owner's ownership of the Christmas Lights recording is acknowledged; underlying arrangements remain a separate rights question.
 - Third-party audio licenses do not become GPL-3.0 solely because the mod's source code is GPL-3.0.
-- **Do not make the QMOD public or create a public release until the outstanding rights have been cleared or the affected assets are replaced with verified alternatives.**
+- **No public QMOD release has been prepared by the verification workflow.** Before a distributable release, independently assess the unresolved track/source and arrangement rights, or substitute verified alternatives.
