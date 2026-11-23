@@ -2,6 +2,9 @@ name: Christmas Eve v1.0.0 verification (no publication)
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - christmaseve-coexistence
 
 permissions:
   contents: read
