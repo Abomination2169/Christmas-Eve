@@ -22,10 +22,8 @@ The combined mod's code is distributed under the GNU General Public License, ver
 
 ## Attribution and modifications
 
-**Status:** Public source, selected artwork, and four Ogg audio files are present in this repository. **No public QMOD release is attached.** The audio remains subject to the separate licenses and unresolved redistribution questions documented in [MUSIC_LICENSES.md](MUSIC_LICENSES.md). Private Build #129 was reported working on Quest; this public source and any new verification build are **not** independently Quest-tested.
+- **Vcmikuu and CatsaCode:** Creators of the original [Christmas Theme](https://github.com/vcmikuu/ChristmasTheme), on whose source this mod is based. Thank you both for the inspiration and your permission. 
+- **Abomination2169:** Seasonal adaptation, code and asset changes, maintenance and distribution of Thanksgiving Theme.
+- **Quest Mod Template:** By [Lauriethefish, danrouse and Bobby Shmurner](https://github.com/Lauriethefish/quest-mod-template), originally provided under the Unlicense. Credit also goes to the dependency/library authors acknowledged in [Christmas Theme's README](https://github.com/vcmikuu/ChristmasTheme#credits).
 
-Compatible with **Beat Saber Quest 1.40.8_7379**. Internal mod ID: `christmas`; QMOD version: **1.0.0**.
-
-Christmas Eve builds upon the original Christmas Theme by **CatsaCode and laynia**, preserving the original snowdrift contributions of **Furzz and Laynia**. Original project documentation is retained in [upstream/README.md](upstream/README.md). Source licensing remains **GPL-3.0**.
-
-For code and dependency credits, see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). For complete audio credits and redistribution status, see [MUSIC_LICENSES.md](MUSIC_LICENSES.md). **Credits alone do not resolve permissions for technically extractable bundled files.**
+This mod substantially changes the original Christmas setting into a Thanksgiving theme, including its seasonal effects and presentation. These modifications were made in 2026. Development was assisted with AI; please support the original artists and developers. Third-party assets, audio, and dependencies may carry their own licenses and require separate review; GPLv3 permission for Christmas Theme code does not automatically cover them.
