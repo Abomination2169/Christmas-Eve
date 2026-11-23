@@ -16,8 +16,9 @@ Compatible with: Beat Saber 1.40.8 (Quest)
 >
 > May its gentle lights shine in remembrance of her love, her life, and the memories that will forever remain.
 >
-> *Until we meet again, beneath the lights.* ❤️
-> -Shaun
+> *Until we meet again, beneath the lights.*
+>  
+> Shaun ❤️
 
 ## License and source code
 
