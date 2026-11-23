@@ -84,8 +84,11 @@ MAKE_HOOK_MATCH(FestiveLogoInit, &GlobalNamespace::FlickeringNeonSign::Start, vo
 
 // Very quick and dirty way to override the menu light colors
 MAKE_HOOK_MATCH(OverrideEnvironmentColors, &GlobalNamespace::LightWithIdManager::SetColorForId, void, GlobalNamespace::LightWithIdManager* self, int lightId, UnityEngine::Color color) {
-    const bool gameplay = UnityEngine::SceneManagement::SceneManager::GetActiveScene().name == "GameCore";
-    if(!getModConfig().EnableWhiteEnv.GetValue() || gameplay)
+    // Restrict the white lighting override to the actual menu scene.
+    // Results and failure screens may be active outside GameCore; recoloring
+    // their light IDs can tint the nearby floor after any song ends.
+    const bool mainMenu = UnityEngine::SceneManagement::SceneManager::GetActiveScene().name == "MainMenu";
+    if(!getModConfig().EnableWhiteEnv.GetValue() || !mainMenu)
         OverrideEnvironmentColors(self, lightId, color);
     else {
         // Force the environment color to be white
