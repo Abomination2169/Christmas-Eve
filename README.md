@@ -18,6 +18,11 @@ This project is a modified derivative of [Christmas Theme](https://github.com/vc
 
 The combined mod's code is distributed under the GNU General Public License, version 3 (GPL-3.0-only). See the LICENSE file for the complete terms. You may study, modify, and redistribute the covered code under GPLv3, subject to its requirements. This is not an official release by the Christmas Theme developers.
 
+Music and sound credits include HD-Studio, Kevin MacLeod, DRAGON-STUDIO, and Christmas Everday.
+
+The Christmas Lights recording was inspired by 90's Christmas light music with slide show 
+https://youtu.be/kwiBpHOmwL4?si=M3pKGpleU7crpjuz
+
 **Source and binaries:** The GitHub repository contains the mod's source and build configuration; the releases page provides downloadable QMODs and source archives. For each binary release, use the matching version/tag of the source, not necessarily the latest main branch. The source supplied for a QMOD must correspond to that build; release assets and source archives require review to confirm this.
 
 ## Attribution and modifications
