@@ -199,7 +199,10 @@ MOD_EXTERN_FUNC void late_load() noexcept {
 
     INFO("Installing hooks...");
     INSTALL_HOOK(PaperLogger, FestiveLogoInit);
-    INSTALL_HOOK(PaperLogger, OverrideEnvironmentColors);
+    // Diagnostic build: leave the original White Environment option intact,
+    // but do not install the environment color override while investigating
+    // blue warning-screen and yellow gameplay/results floor colors.
+    // INSTALL_HOOK(PaperLogger, OverrideEnvironmentColors);
     INSTALL_HOOK(PaperLogger, SnowInit);
     INSTALL_HOOK(PaperLogger, ChristmasEveResultsActivate);
     INSTALL_HOOK(PaperLogger, ChristmasEveResultsDeactivate);
