@@ -3,12 +3,12 @@
   "dependenciesDir": "extern",
   "version": "0.1.0",
   "info": {
-    "name": "Christmas Eve",
-    "id": "christmas",
+    "name": "Christmas Eve Theme",
+    "id": "christmaseve",
     "version": "1.0.0",
     "url": null,
     "additionalData": {
-      "overrideSoName": "libchristmas.so",
+      "overrideSoName": "libchristmaseve.so",
       "cmake": true
     }
   },
@@ -17,7 +17,9 @@
       "build": [
         "pwsh ./scripts/build.ps1"
       ],
-      "clean": ["pwsh ./scripts/build.ps1 -clean"],
+      "clean": [
+        "pwsh ./scripts/build.ps1 -clean"
+      ],
       "copy": [
         "pwsh ./scripts/copy.ps1 $0:?"
       ],
@@ -39,8 +41,11 @@
       ]
     },
     "ndk": "^27.3.13750724",
-    "qmodIncludeDirs": ["./build", "./extern/libs"],
-    "qmodOutput": "./Christmas.qmod"
+    "qmodIncludeDirs": [
+      "./build",
+      "./extern/libs"
+    ],
+    "qmodOutput": "./ChristmasEve.qmod"
   },
   "dependencies": [
     {
