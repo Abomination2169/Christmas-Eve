@@ -90,8 +90,9 @@ MAKE_HOOK_MATCH(OverrideEnvironmentColors, &GlobalNamespace::LightWithIdManager:
     static int previousMode = -1;
     const int currentMode = gameplay ? 1 : 0;
     if (previousMode != currentMode) {
-        INFO("[FloorColorDiagnostic] LightWithIdManager update mode={} lightId={} whiteEnv={}",
-             gameplay ? "GameCore" : "Menu", lightId, getModConfig().EnableWhiteEnv.GetValue());
+        INFO("[FloorColorDiagnostic] LightWithIdManager transition mode={} lightId={} whiteEnv={} incomingRGBA=({},{},{},{})",
+             gameplay ? "GameCore" : "Menu", lightId, getModConfig().EnableWhiteEnv.GetValue(),
+             color.r, color.g, color.b, color.a);
         previousMode = currentMode;
     }
     if(!getModConfig().EnableWhiteEnv.GetValue() || gameplay)
