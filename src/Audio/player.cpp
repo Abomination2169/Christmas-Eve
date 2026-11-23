@@ -10,9 +10,9 @@
 
 // Three recordings are eligible for private testing only; see MUSIC_LICENSES.md for unverified redistribution rights.
 static const std::array<const char*, 3> songPathList = {{
-    "/sdcard/ModData/com.beatgames.beatsaber/Mods/Christmas/we_wish_you_a_merry_christmas.ogg",
-    "/sdcard/ModData/com.beatgames.beatsaber/Mods/Christmas/dance_of_the_sugar_plum_fairy.ogg",
-    "/sdcard/ModData/com.beatgames.beatsaber/Mods/Christmas/M668_Christmas_Lights_5m22_click_removed.ogg"
+    "/sdcard/ModData/com.beatgames.beatsaber/Mods/ChristmasEve/we_wish_you_a_merry_christmas.ogg",
+    "/sdcard/ModData/com.beatgames.beatsaber/Mods/ChristmasEve/dance_of_the_sugar_plum_fairy.ogg",
+    "/sdcard/ModData/com.beatgames.beatsaber/Mods/ChristmasEve/M668_Christmas_Lights_5m22_click_removed.ogg"
 }};
 
 void PlayRandomSong(GlobalNamespace::SongPreviewPlayer* songPreviewPlayer) {
