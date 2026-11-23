@@ -26,8 +26,6 @@ The combined mod's code is distributed under the GNU General Public License, ver
 
 Compatible with **Beat Saber Quest 1.40.8_7379**. Internal mod ID: `christmas`; QMOD version: **1.0.0**.
 
-## Authors and attribution
-
 Christmas Eve builds upon the original Christmas Theme by **CatsaCode and laynia**, preserving the original snowdrift contributions of **Furzz and Laynia**. Original project documentation is retained in [upstream/README.md](upstream/README.md). Source licensing remains **GPL-3.0**.
 
 For code and dependency credits, see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). For complete audio credits and redistribution status, see [MUSIC_LICENSES.md](MUSIC_LICENSES.md). **Credits alone do not resolve permissions for technically extractable bundled files.**
