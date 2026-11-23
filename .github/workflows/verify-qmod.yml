@@ -35,7 +35,7 @@ jobs:
           test -f scripts/createqmod.ps1
           test -d src
           test -d include
-          for item in cover.png Cover.png ChristmasEve-README.png \
+          for item in Cover.png ChristmasEve-README.png \
             assets/logo.png assets/snowflakes.png \
             FileCopies/we_wish_you_a_merry_christmas.ogg \
             FileCopies/dance_of_the_sugar_plum_fairy.ogg \
@@ -53,7 +53,10 @@ jobs:
           for name in expected:
               with (root / name).open("rb") as f:
                   assert f.read(4) == b"OggS", name
-          for path in [pathlib.Path("cover.png"), pathlib.Path("Cover.png"), pathlib.Path("ChristmasEve-README.png"), *pathlib.Path("assets").glob("*.png")]:
+          assert not pathlib.Path("cover.png").exists(), "Removed original cover.png unexpectedly restored"
+          assert pathlib.Path("Cover.png").read_bytes() == pathlib.Path("ChristmasEve-README.png").read_bytes(), "QMOD cover differs from approved README artwork"
+          assert mod["coverImage"] == "Cover.png"
+          for path in [pathlib.Path("Cover.png"), pathlib.Path("ChristmasEve-README.png"), *pathlib.Path("assets").glob("*.png")]:
               with path.open("rb") as f:
                   header = f.read(24)
               assert header[:8] == b"\x89PNG\r\n\x1a\n", path
@@ -111,7 +114,10 @@ jobs:
                   assert z.read(matches[0])[:4] == b"OggS", audio
                   print("Verified audio:", audio)
               cover = manifest["coverImage"]
+              assert cover == "Cover.png", cover
               assert any(n.rsplit("/",1)[-1] == cover for n in names), cover
+              assert not any(n.rsplit("/",1)[-1] == "cover.png" for n in names), "Original cover must not be packaged"
+              assert z.read(next(n for n in names if n.rsplit("/",1)[-1] == cover)) == pathlib.Path("Cover.png").read_bytes(), "Packaged cover does not match approved artwork"
               libs = [n for n in names if n.rsplit("/",1)[-1] == "libchristmas.so"]
               assert len(libs) == 1, libs
               elf = z.read(libs[0])[:64]
@@ -122,4 +128,12 @@ jobs:
               print("Verified ELF64 AArch64:", libs[0])
               print("PASS: v1.0.0 QMOD packaged with all four audio tracks")
           PY
-          echo "Verification only; no QMOD upload, release, or deployment."
+          echo "Verification only; no release or deployment."
+
+      - name: Retain verified QMOD for release-asset review
+        uses: actions/upload-artifact@v4
+        with:
+          name: christmas-eve-v1.0.0-verified-qmod
+          path: "*.qmod"
+          if-no-files-found: error
+          retention-days: 30
