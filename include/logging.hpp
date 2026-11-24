@@ -10,4 +10,4 @@ static constexpr auto Logger = Paper::ConstLoggerContext(MOD_ID);
 #define WARNING(str, ...) Paper::Logger::fmtLogTag<Paper::LogLevel::WRN>(str, MOD_ID __VA_OPT__(, __VA_ARGS__))
 #define CRITICAL(str, ...) Paper::Logger::fmtLogTag<Paper::LogLevel::CRIT>(str, MOD_ID __VA_OPT__(, __VA_ARGS__))
 
-constexpr auto PaperLogger = Paper::ConstLoggerContext("christmas");
+constexpr auto PaperLogger = Paper::ConstLoggerContext("christmaseve");

@@ -17,19 +17,19 @@
   "fileCopies": [
     {
       "name": "we_wish_you_a_merry_christmas.ogg",
-      "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Christmas/we_wish_you_a_merry_christmas.ogg"
+      "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/ChristmasEve/we_wish_you_a_merry_christmas.ogg"
     },
     {
       "name": "dance_of_the_sugar_plum_fairy.ogg",
-      "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Christmas/dance_of_the_sugar_plum_fairy.ogg"
+      "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/ChristmasEve/dance_of_the_sugar_plum_fairy.ogg"
     },
     {
       "name": "M668_Christmas_Lights_5m22_click_removed.ogg",
-      "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Christmas/M668_Christmas_Lights_5m22_click_removed.ogg"
+      "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/ChristmasEve/M668_Christmas_Lights_5m22_click_removed.ogg"
     },
     {
       "name": "christmas-eve-aurora-jingle.ogg",
-      "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Christmas/christmas-eve-aurora-jingle.ogg"
+      "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/ChristmasEve/christmas-eve-aurora-jingle.ogg"
     }
   ]
 }

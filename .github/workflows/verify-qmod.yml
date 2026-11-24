@@ -2,16 +2,19 @@ name: Christmas Eve v1.0.0 verification (no publication)
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - christmaseve-coexistence
 
 permissions:
   contents: read
 
 jobs:
   verify-qmod:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/christmaseve-coexistence'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout public main
+      - name: Checkout selected verification branch
         uses: actions/checkout@v4
         with:
           persist-credentials: false
@@ -23,8 +26,9 @@ jobs:
           set -euo pipefail
           git merge-base --is-ancestor 640673bdead25439b119359a1b6e7aa67079cc50 HEAD
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          test "$(jq -r '.info.id' qpm.json)" = "christmas"
+          test "$(jq -r '.info.id' qpm.json)" = "christmaseve"
           test "$(jq -r '.info.version' qpm.json)" = "1.0.0"
+          test "$(jq -r '.info.additionalData.overrideSoName' qpm.json)" = "libchristmaseve.so"
           test "$(jq -r '.version' mod.template.json)" = "1.0.0"
           test "$(jq -r '.packageVersion' mod.template.json)" = "1.40.8_7379"
           test "$(jq -r '.description' mod.template.json)" = "Celebrate Christmas Eve on a peaceful, snowy alpine winter night."
@@ -103,8 +107,9 @@ jobs:
               manifest_names = [n for n in names if n.endswith("mod.json")]
               assert len(manifest_names) == 1, manifest_names
               manifest = json.loads(z.read(manifest_names[0]))
-              assert manifest["id"] == "christmas"
+              assert manifest["id"] == "christmaseve"
               assert manifest["version"] == "1.0.0"
+              assert all("/Mods/ChristmasEve/" in item["destination"] for item in manifest["fileCopies"])
               assert manifest["packageVersion"] == "1.40.8_7379"
               assert manifest["description"] == "Celebrate Christmas Eve on a peaceful, snowy alpine winter night."
               assert {v["name"] for v in manifest["fileCopies"]} == expected
@@ -118,7 +123,7 @@ jobs:
               assert any(n.rsplit("/",1)[-1] == cover for n in names), cover
               assert not any(n.rsplit("/",1)[-1] == "cover.png" for n in names), "Original cover must not be packaged"
               assert z.read(next(n for n in names if n.rsplit("/",1)[-1] == cover)) == pathlib.Path("Cover.png").read_bytes(), "Packaged cover does not match approved artwork"
-              libs = [n for n in names if n.rsplit("/",1)[-1] == "libchristmas.so"]
+              libs = [n for n in names if n.rsplit("/",1)[-1] == "libchristmaseve.so"]
               assert len(libs) == 1, libs
               elf = z.read(libs[0])[:64]
               assert elf[:4] == b"\x7fELF"
