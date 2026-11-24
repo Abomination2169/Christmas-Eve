@@ -68,16 +68,14 @@ static modloader::ModInfo modInfo{MOD_ID, VERSION, 0};
 
 
 namespace {
-    constexpr const char* floorDiagnosticBuild = "menu-floor-restoration-v1";
+    constexpr const char* floorDiagnosticBuild = "menu-floor-restoration-v2";
+    SafePtrUnity<MeshRenderer> menuFloor;
     Color menuFloorBaseline{};
     bool hasMenuFloorBaseline = false;
+    bool floorRestorationActive = false;
+    bool loggedFloorRestore = false;
 
-    void RestoreMenuFloor(int phase) {
-        if (UnityEngine::SceneManagement::SceneManager::GetActiveScene().name == "GameCore") return;
-        if (phase != 0 && (!hasMenuFloorBaseline || !getModConfig().EnableWhiteEnv.GetValue())) return;
-
-        const char* label = phase == 0 ? "startup-menu" : phase == 1 ? "results" : "after-results";
-        const int property = Shader::PropertyToID("_Color");
+    MeshRenderer* FindMenuFloor(int colorProperty) {
         for (auto* renderer : Resources::FindObjectsOfTypeAll<MeshRenderer*>()) {
             if (!renderer || !renderer->get_enabled()) continue;
             auto go = renderer->get_gameObject();
@@ -85,59 +83,79 @@ namespace {
             const auto materials = renderer->get_sharedMaterials();
             if (materials.size() != 1) continue;
             auto material = materials[0];
-            if (!material || material->get_name() != "MenuFloor" || !material->HasProperty(property)) continue;
-
-            auto* block = MaterialPropertyBlock::New_ctor();
-            renderer->GetPropertyBlock(block);
-            const auto current = block->GetColor(property);
-            if (phase == 0) {
-                // The Quest binding returns zero for an unset renderer property.
-                const bool unset = current.r == 0 && current.g == 0 && current.b == 0 && current.a == 0;
-                menuFloorBaseline = unset ? material->GetColor(property) : current;
-                hasMenuFloorBaseline = true;
-                INFO("[MenuFloorRestoration] baselineRGBA=({},{},{},{})",
-                     menuFloorBaseline.r, menuFloorBaseline.g, menuFloorBaseline.b, menuFloorBaseline.a);
-                return;
-            }
-
-            if (current.r == menuFloorBaseline.r && current.g == menuFloorBaseline.g &&
-                current.b == menuFloorBaseline.b && current.a == menuFloorBaseline.a) return;
-            // Copy the current block so any other renderer properties survive the write.
-            block->SetColor(property, menuFloorBaseline);
-            renderer->SetPropertyBlock(block);
-            INFO("[MenuFloorRestoration] phase={} restored BasicMenuGround from RGBA=({},{},{},{})",
-                 label, current.r, current.g, current.b, current.a);
-            return;
+            if (material && material->get_name() == "MenuFloor" && material->HasProperty(colorProperty))
+                return renderer;
         }
-        INFO("[MenuFloorRestoration] phase={} BasicMenuGround/MenuFloor unavailable", label);
+        return nullptr;
+    }
+
+    void EnableMenuFloorRestoration() {
+        floorRestorationActive = true;
+        loggedFloorRestore = false;
     }
 }
 
 DECLARE_CLASS_CODEGEN(Christmas, FloorRendererSample, UnityEngine::MonoBehaviour) {
-    DECLARE_INSTANCE_FIELD(float, sampleAt);
-    DECLARE_INSTANCE_FIELD(int, phase);
-    DECLARE_INSTANCE_METHOD(void, Update);
+    DECLARE_INSTANCE_FIELD(float, nextLookupAt);
+    DECLARE_INSTANCE_FIELD(UnityEngine::MaterialPropertyBlock*, propertyBlock);
+    DECLARE_INSTANCE_METHOD(void, LateUpdate);
 };
 DEFINE_TYPE(Christmas, FloorRendererSample);
 
-void Christmas::FloorRendererSample::Update() {
-    if (Time::get_realtimeSinceStartup() < sampleAt) return;
-    RestoreMenuFloor(phase);
-    GameObject::Destroy(get_gameObject());
+void Christmas::FloorRendererSample::LateUpdate() {
+    if (hasMenuFloorBaseline && (!floorRestorationActive || !getModConfig().EnableWhiteEnv.GetValue())) return;
+    if (UnityEngine::SceneManagement::SceneManager::GetActiveScene().name == "GameCore") return;
+
+    static const int colorProperty = Shader::PropertyToID("_Color");
+    if (!menuFloor) {
+        const float now = Time::get_realtimeSinceStartup();
+        if (now < nextLookupAt) return;
+        nextLookupAt = now + 0.5f;
+        menuFloor = FindMenuFloor(colorProperty);
+        if (!menuFloor) return;
+    }
+
+    auto* renderer = menuFloor.ptr();
+    auto go = renderer->get_gameObject();
+    if (!go || !go->get_activeInHierarchy() || !renderer->get_enabled()) return;
+    renderer->GetPropertyBlock(propertyBlock);
+    const auto current = propertyBlock->GetColor(colorProperty);
+
+    if (!hasMenuFloorBaseline) {
+        if (floorRestorationActive) return;
+        // An unset override is reported as zero by the Quest binding.
+        const bool unset = current.r == 0 && current.g == 0 && current.b == 0 && current.a == 0;
+        menuFloorBaseline = unset ? renderer->get_sharedMaterials()[0]->GetColor(colorProperty) : current;
+        hasMenuFloorBaseline = true;
+        INFO("[MenuFloorRestoration] baselineRGBA=({},{},{},{})",
+             menuFloorBaseline.r, menuFloorBaseline.g, menuFloorBaseline.b, menuFloorBaseline.a);
+        return;
+    }
+
+    if (current.r == menuFloorBaseline.r && current.g == menuFloorBaseline.g &&
+        current.b == menuFloorBaseline.b && current.a == menuFloorBaseline.a) return;
+    // Preserve the other properties written by the menu lighting system.
+    propertyBlock->SetColor(colorProperty, menuFloorBaseline);
+    renderer->SetPropertyBlock(propertyBlock);
+    if (!loggedFloorRestore) {
+        loggedFloorRestore = true;
+        INFO("[MenuFloorRestoration] LateUpdate corrected BasicMenuGround from RGBA=({},{},{},{})",
+             current.r, current.g, current.b, current.a);
+    }
 }
 
 namespace {
-    void ScheduleFloorSample(int phase) {
-        if (phase != 0) RestoreMenuFloor(phase);
-        auto* probe = GameObject::New_ctor("ChristmasFloorRendererDiagnostic");
+    void StartMenuFloorRestoration() {
+        auto* probe = GameObject::New_ctor("ChristmasMenuFloorRestoration");
         auto* sampler = probe->AddComponent<Christmas::FloorRendererSample*>();
         if (!sampler) {
             GameObject::Destroy(probe);
-            INFO("[MenuFloorRestoration] Failed to schedule phase={}", phase);
+            INFO("[MenuFloorRestoration] Failed to create floor controller");
             return;
         }
-        sampler->phase = phase;
-        sampler->sampleAt = Time::get_realtimeSinceStartup() + 0.5f;
+        sampler->nextLookupAt = Time::get_realtimeSinceStartup() + 0.5f;
+        sampler->propertyBlock = MaterialPropertyBlock::New_ctor();
+        GameObject::DontDestroyOnLoad(probe);
     }
 }
 
@@ -188,7 +206,7 @@ MAKE_HOOK_MATCH(SnowInit, &GlobalNamespace::MainMenuViewController::DidActivate,
     SnowInit(self, firstActivation, addedToHierarchy, screenSystemEnabling);
 
     if(!firstActivation) return;
-    ScheduleFloorSample(0);
+    StartMenuFloorRestoration();
 
     if(getModConfig().EnableSnowflakes.GetValue()) Christmas::snowflakes::CreateSnowflakes();
     if(getModConfig().EnableSnowPiles.GetValue()) Christmas::snowPrimitives::CreateSnowPrimitives();
@@ -248,7 +266,7 @@ MAKE_HOOK_MATCH(ChristmasFireworkLights, &GlobalNamespace::FireworkItemControlle
 // RankModel::Rank is E=0, D=1, C=2, B=3, A=4, S=5, SS=6, SSS=7.
 MAKE_HOOK_MATCH(ChristmasEveResultsActivate, &GlobalNamespace::ResultsViewController::DidActivate, void, GlobalNamespace::ResultsViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
     ChristmasEveResultsActivate(self, firstActivation, addedToHierarchy, screenSystemEnabling);
-    if (addedToHierarchy) ScheduleFloorSample(1);
+    if (addedToHierarchy) EnableMenuFloorRestoration();
     auto* completed = self ? self->__cordl_internal_get__levelCompletionResults() : nullptr;
     const bool rankSOrAbove = completed && completed->__cordl_internal_get_rank().value__ >= 5;
     christmasResultsEligible = rankSOrAbove;
@@ -266,7 +284,7 @@ MAKE_HOOK_MATCH(ChristmasEveResultsDeactivate, &GlobalNamespace::ResultsViewCont
     if (christmasResultsEligible) SetFireworkEmission(true);
     christmasResultsEligible = false;
     ChristmasEveResultsDeactivate(self, removedFromHierarchy, screenSystemDisabling);
-    if (removedFromHierarchy) ScheduleFloorSample(2);
+    if (removedFromHierarchy) EnableMenuFloorRestoration();
 }
 
 // Called at the early stages of game loading
