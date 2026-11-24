@@ -25,7 +25,6 @@
 
 #include "UnityEngine/Time.hpp"
 #include "UnityEngine/Renderer.hpp"
-#include "UnityEngine/Bounds.hpp"
 #include "UnityEngine/Material.hpp"
 #include "UnityEngine/MaterialPropertyBlock.hpp"
 #include "UnityEngine/MeshRenderer.hpp"
@@ -50,7 +49,6 @@
 #include "GlobalNamespace/FireworkItemController.hpp"
 #include "Snowflakes/particleController.hpp"
 #include "bsml/shared/Helpers/utilities.hpp"
-#include <string>
 #include <vector>
 
 
@@ -70,62 +68,48 @@ static modloader::ModInfo modInfo{MOD_ID, VERSION, 0};
 
 
 namespace {
-    constexpr const char* floorDiagnosticBuild = "floor-renderer-v2";
+    constexpr const char* floorDiagnosticBuild = "menu-floor-restoration-v1";
+    Color menuFloorBaseline{};
+    bool hasMenuFloorBaseline = false;
 
-    void LogFloorColor(const char* phase, int rendererId, int slot,
-                       const char* source, const char* property, Color color) {
-        INFO("[FloorRendererDiagnostic] phase={} renderer={} slot={} source={} {}=({},{},{},{})",
-             phase, rendererId, slot, source, property, color.r, color.g, color.b, color.a);
-    }
+    void RestoreMenuFloor(int phase) {
+        if (UnityEngine::SceneManagement::SceneManager::GetActiveScene().name == "GameCore") return;
+        if (phase != 0 && (!hasMenuFloorBaseline || !getModConfig().EnableWhiteEnv.GetValue())) return;
 
-    void SampleFloorRenderers(const char* phase) {
-        auto* block = MaterialPropertyBlock::New_ctor();
-        int sampled = 0;
-        int candidates = 0;
+        const char* label = phase == 0 ? "startup-menu" : phase == 1 ? "results" : "after-results";
+        const int property = Shader::PropertyToID("_Color");
         for (auto* renderer : Resources::FindObjectsOfTypeAll<MeshRenderer*>()) {
             if (!renderer || !renderer->get_enabled()) continue;
             auto go = renderer->get_gameObject();
-            if (!go || !go->get_activeInHierarchy()) continue;
-            auto bounds = renderer->get_bounds();
-            const auto min = bounds.get_min();
-            const auto max = bounds.get_max();
-            const auto size = bounds.get_size();
-            // Include broad meshes near the standing area, including unnamed floor pieces.
-            if (min.x > 1.5f || max.x < -1.5f || min.z > 2.0f || max.z < -2.0f ||
-                min.y > 0.4f || max.y < -0.6f || size.x < 0.3f || size.z < 0.3f) continue;
-            const auto name = static_cast<std::string>(go->get_name());
-            if (name.starts_with("Christmas") || name.starts_with("Snow")) continue;
-            ++candidates;
-            if (sampled >= 48) continue;
-            ++sampled;
-            const int id = renderer->GetInstanceID();
+            if (!go || !go->get_activeInHierarchy() || go->get_name() != "BasicMenuGround") continue;
             const auto materials = renderer->get_sharedMaterials();
-            INFO("[FloorRendererDiagnostic] phase={} renderer={} name={} y=[{},{}] size=({},{},{}) slots={}",
-                 phase, id, name, min.y, max.y, size.x, size.y, size.z, materials.size());
+            if (materials.size() != 1) continue;
+            auto material = materials[0];
+            if (!material || material->get_name() != "MenuFloor" || !material->HasProperty(property)) continue;
 
+            auto* block = MaterialPropertyBlock::New_ctor();
             renderer->GetPropertyBlock(block);
-            constexpr const char* properties[] = {"_Color", "_BaseColor", "_EmissionColor", "_TintColor"};
-            for (const auto* property : properties) {
-                const int propertyId = Shader::PropertyToID(property);
-                // This Unity binding returns default RGBA for an unset override.
-                LogFloorColor(phase, id, -1, "renderer-block-raw", property, block->GetColor(propertyId));
+            const auto current = block->GetColor(property);
+            if (phase == 0) {
+                // The Quest binding returns zero for an unset renderer property.
+                const bool unset = current.r == 0 && current.g == 0 && current.b == 0 && current.a == 0;
+                menuFloorBaseline = unset ? material->GetColor(property) : current;
+                hasMenuFloorBaseline = true;
+                INFO("[MenuFloorRestoration] baselineRGBA=({},{},{},{})",
+                     menuFloorBaseline.r, menuFloorBaseline.g, menuFloorBaseline.b, menuFloorBaseline.a);
+                return;
             }
-            for (int slot = 0; slot < materials.size(); ++slot) {
-                auto material = materials[slot];
-                if (!material) continue;
-                auto shader = material->get_shader();
-                INFO("[FloorRendererDiagnostic] phase={} renderer={} slot={} material={} shader={}",
-                     phase, id, slot, static_cast<std::string>(material->get_name()),
-                     shader ? static_cast<std::string>(shader->get_name()) : std::string{});
-                for (const auto* property : properties) {
-                    const int propertyId = Shader::PropertyToID(property);
-                    if (material->HasProperty(propertyId))
-                        LogFloorColor(phase, id, slot, "shared-material", property, material->GetColor(propertyId));
-                }
-            }
+
+            if (current.r == menuFloorBaseline.r && current.g == menuFloorBaseline.g &&
+                current.b == menuFloorBaseline.b && current.a == menuFloorBaseline.a) return;
+            // Copy the current block so any other renderer properties survive the write.
+            block->SetColor(property, menuFloorBaseline);
+            renderer->SetPropertyBlock(block);
+            INFO("[MenuFloorRestoration] phase={} restored BasicMenuGround from RGBA=({},{},{},{})",
+                 label, current.r, current.g, current.b, current.a);
+            return;
         }
-        INFO("[FloorRendererDiagnostic] build={} phase={} sampled={} candidates={}",
-             floorDiagnosticBuild, phase, sampled, candidates);
+        INFO("[MenuFloorRestoration] phase={} BasicMenuGround/MenuFloor unavailable", label);
     }
 }
 
@@ -138,17 +122,18 @@ DEFINE_TYPE(Christmas, FloorRendererSample);
 
 void Christmas::FloorRendererSample::Update() {
     if (Time::get_realtimeSinceStartup() < sampleAt) return;
-    SampleFloorRenderers(phase == 0 ? "startup-menu" : phase == 1 ? "results" : "after-results");
+    RestoreMenuFloor(phase);
     GameObject::Destroy(get_gameObject());
 }
 
 namespace {
     void ScheduleFloorSample(int phase) {
+        if (phase != 0) RestoreMenuFloor(phase);
         auto* probe = GameObject::New_ctor("ChristmasFloorRendererDiagnostic");
         auto* sampler = probe->AddComponent<Christmas::FloorRendererSample*>();
         if (!sampler) {
             GameObject::Destroy(probe);
-            INFO("[FloorRendererDiagnostic] Failed to schedule phase={}", phase);
+            INFO("[MenuFloorRestoration] Failed to schedule phase={}", phase);
             return;
         }
         sampler->phase = phase;
