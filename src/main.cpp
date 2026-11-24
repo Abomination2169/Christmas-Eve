@@ -25,6 +25,13 @@
 
 #include "UnityEngine/Time.hpp"
 #include "UnityEngine/Renderer.hpp"
+#include "UnityEngine/Bounds.hpp"
+#include "UnityEngine/Material.hpp"
+#include "UnityEngine/MaterialPropertyBlock.hpp"
+#include "UnityEngine/MeshRenderer.hpp"
+#include "UnityEngine/MonoBehaviour.hpp"
+#include "UnityEngine/Resources.hpp"
+#include "UnityEngine/Shader.hpp"
 #include "UnityEngine/SceneManagement/SceneManager.hpp"
 #include "UnityEngine/SceneManagement/SceneManagement.hpp"
 #include "UnityEngine/GameObject.hpp"
@@ -43,6 +50,7 @@
 #include "GlobalNamespace/FireworkItemController.hpp"
 #include "Snowflakes/particleController.hpp"
 #include "bsml/shared/Helpers/utilities.hpp"
+#include <string>
 #include <vector>
 
 
@@ -59,6 +67,99 @@ using namespace UnityEngine;
 static modloader::ModInfo modInfo{MOD_ID, VERSION, 0};
 // Stores the ID and version of our mod, and is sent to
 // the modloader upon startup
+
+
+namespace {
+    constexpr const char* floorDiagnosticBuild = "floor-renderer-v2";
+
+    void LogFloorColor(const char* phase, int rendererId, int slot,
+                       const char* source, const char* property, Color color) {
+        INFO("[FloorRendererDiagnostic] phase={} renderer={} slot={} source={} {}=({},{},{},{})",
+             phase, rendererId, slot, source, property, color.r, color.g, color.b, color.a);
+    }
+
+    void SampleFloorRenderers(const char* phase) {
+        auto* block = MaterialPropertyBlock::New_ctor();
+        int sampled = 0;
+        int candidates = 0;
+        for (auto* renderer : Resources::FindObjectsOfTypeAll<MeshRenderer*>()) {
+            if (!renderer || !renderer->get_enabled()) continue;
+            auto* go = renderer->get_gameObject();
+            if (!go || !go->get_activeInHierarchy()) continue;
+            const auto bounds = renderer->get_bounds();
+            const auto min = bounds.get_min();
+            const auto max = bounds.get_max();
+            const auto size = bounds.get_size();
+            // Include broad meshes near the standing area, including unnamed floor pieces.
+            if (min.x > 1.5f || max.x < -1.5f || min.z > 2.0f || max.z < -2.0f ||
+                min.y > 0.4f || max.y < -0.6f || size.x < 0.3f || size.z < 0.3f) continue;
+            const auto name = static_cast<std::string>(go->get_name());
+            if (name.starts_with("Christmas") || name.starts_with("Snow")) continue;
+            ++candidates;
+            if (sampled >= 48) continue;
+            ++sampled;
+            const int id = renderer->GetInstanceID();
+            const auto materials = renderer->get_sharedMaterials();
+            INFO("[FloorRendererDiagnostic] phase={} renderer={} name={} y=[{},{}] size=({},{},{}) slots={}",
+                 phase, id, name, min.y, max.y, size.x, size.y, size.z, materials.size());
+
+            renderer->GetPropertyBlock(block);
+            INFO("[FloorRendererDiagnostic] phase={} renderer={} rendererBlockEmpty={}",
+                 phase, id, block->get_isEmpty());
+            constexpr const char* properties[] = {"_Color", "_BaseColor", "_EmissionColor", "_TintColor"};
+            for (const auto* property : properties) {
+                const int propertyId = Shader::PropertyToID(property);
+                if (block->HasColor(propertyId))
+                    LogFloorColor(phase, id, -1, "renderer-block", property, block->GetColor(propertyId));
+            }
+            for (int slot = 0; slot < materials.size(); ++slot) {
+                auto* material = materials[slot];
+                if (!material) continue;
+                auto* shader = material->get_shader();
+                INFO("[FloorRendererDiagnostic] phase={} renderer={} slot={} material={} shader={}",
+                     phase, id, slot, static_cast<std::string>(material->get_name()),
+                     shader ? static_cast<std::string>(shader->get_name()) : std::string{});
+                renderer->GetPropertyBlock(block, slot);
+                for (const auto* property : properties) {
+                    const int propertyId = Shader::PropertyToID(property);
+                    if (material->HasProperty(propertyId))
+                        LogFloorColor(phase, id, slot, "shared-material", property, material->GetColor(propertyId));
+                    if (block->HasColor(propertyId))
+                        LogFloorColor(phase, id, slot, "slot-block", property, block->GetColor(propertyId));
+                }
+            }
+        }
+        INFO("[FloorRendererDiagnostic] build={} phase={} sampled={} candidates={}",
+             floorDiagnosticBuild, phase, sampled, candidates);
+    }
+}
+
+DECLARE_CLASS_CODEGEN(Christmas, FloorRendererSample, UnityEngine::MonoBehaviour) {
+    DECLARE_INSTANCE_FIELD(float, sampleAt);
+    DECLARE_INSTANCE_FIELD(int, phase);
+    DECLARE_INSTANCE_METHOD(void, Update);
+};
+DEFINE_TYPE(Christmas, FloorRendererSample);
+
+void Christmas::FloorRendererSample::Update() {
+    if (Time::get_realtimeSinceStartup() < sampleAt) return;
+    SampleFloorRenderers(phase == 0 ? "startup-menu" : phase == 1 ? "results" : "after-results");
+    GameObject::Destroy(get_gameObject());
+}
+
+namespace {
+    void ScheduleFloorSample(int phase) {
+        auto* probe = GameObject::New_ctor("ChristmasFloorRendererDiagnostic");
+        auto* sampler = probe->AddComponent<Christmas::FloorRendererSample*>();
+        if (!sampler) {
+            GameObject::Destroy(probe);
+            INFO("[FloorRendererDiagnostic] Failed to schedule phase={}", phase);
+            return;
+        }
+        sampler->phase = phase;
+        sampler->sampleAt = Time::get_realtimeSinceStartup() + 0.5f;
+    }
+}
 
 // Called whenever the main menu scene loads
 MAKE_HOOK_MATCH(SongPreviewPlayer_OnEnable, &SongPreviewPlayer::OnEnable, void, SongPreviewPlayer* self) {
@@ -107,6 +208,7 @@ MAKE_HOOK_MATCH(SnowInit, &GlobalNamespace::MainMenuViewController::DidActivate,
     SnowInit(self, firstActivation, addedToHierarchy, screenSystemEnabling);
 
     if(!firstActivation) return;
+    ScheduleFloorSample(0);
 
     if(getModConfig().EnableSnowflakes.GetValue()) Christmas::snowflakes::CreateSnowflakes();
     if(getModConfig().EnableSnowPiles.GetValue()) Christmas::snowPrimitives::CreateSnowPrimitives();
@@ -166,6 +268,7 @@ MAKE_HOOK_MATCH(ChristmasFireworkLights, &GlobalNamespace::FireworkItemControlle
 // RankModel::Rank is E=0, D=1, C=2, B=3, A=4, S=5, SS=6, SSS=7.
 MAKE_HOOK_MATCH(ChristmasEveResultsActivate, &GlobalNamespace::ResultsViewController::DidActivate, void, GlobalNamespace::ResultsViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
     ChristmasEveResultsActivate(self, firstActivation, addedToHierarchy, screenSystemEnabling);
+    if (addedToHierarchy) ScheduleFloorSample(1);
     auto* completed = self ? self->__cordl_internal_get__levelCompletionResults() : nullptr;
     const bool rankSOrAbove = completed && completed->__cordl_internal_get_rank().value__ >= 5;
     christmasResultsEligible = rankSOrAbove;
@@ -183,6 +286,7 @@ MAKE_HOOK_MATCH(ChristmasEveResultsDeactivate, &GlobalNamespace::ResultsViewCont
     if (christmasResultsEligible) SetFireworkEmission(true);
     christmasResultsEligible = false;
     ChristmasEveResultsDeactivate(self, removedFromHierarchy, screenSystemDisabling);
+    if (removedFromHierarchy) ScheduleFloorSample(2);
 }
 
 // Called at the early stages of game loading
@@ -194,6 +298,7 @@ MOD_EXTERN_FUNC void setup(CModInfo *info) noexcept {
     // File logging
     Paper::Logger::RegisterFileContextId(PaperLogger.tag);
 
+    INFO("[FloorRendererDiagnostic] build={} startup", floorDiagnosticBuild);
     INFO("Completed setup!");
 }
 
