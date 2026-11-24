@@ -84,9 +84,9 @@ namespace {
         int candidates = 0;
         for (auto* renderer : Resources::FindObjectsOfTypeAll<MeshRenderer*>()) {
             if (!renderer || !renderer->get_enabled()) continue;
-            auto* go = renderer->get_gameObject();
+            auto go = renderer->get_gameObject();
             if (!go || !go->get_activeInHierarchy()) continue;
-            const auto bounds = renderer->get_bounds();
+            auto bounds = renderer->get_bounds();
             const auto min = bounds.get_min();
             const auto max = bounds.get_max();
             const auto size = bounds.get_size();
@@ -104,28 +104,23 @@ namespace {
                  phase, id, name, min.y, max.y, size.x, size.y, size.z, materials.size());
 
             renderer->GetPropertyBlock(block);
-            INFO("[FloorRendererDiagnostic] phase={} renderer={} rendererBlockEmpty={}",
-                 phase, id, block->get_isEmpty());
             constexpr const char* properties[] = {"_Color", "_BaseColor", "_EmissionColor", "_TintColor"};
             for (const auto* property : properties) {
                 const int propertyId = Shader::PropertyToID(property);
-                if (block->HasColor(propertyId))
-                    LogFloorColor(phase, id, -1, "renderer-block", property, block->GetColor(propertyId));
+                // This Unity binding returns default RGBA for an unset override.
+                LogFloorColor(phase, id, -1, "renderer-block-raw", property, block->GetColor(propertyId));
             }
             for (int slot = 0; slot < materials.size(); ++slot) {
-                auto* material = materials[slot];
+                auto material = materials[slot];
                 if (!material) continue;
-                auto* shader = material->get_shader();
+                auto shader = material->get_shader();
                 INFO("[FloorRendererDiagnostic] phase={} renderer={} slot={} material={} shader={}",
                      phase, id, slot, static_cast<std::string>(material->get_name()),
                      shader ? static_cast<std::string>(shader->get_name()) : std::string{});
-                renderer->GetPropertyBlock(block, slot);
                 for (const auto* property : properties) {
                     const int propertyId = Shader::PropertyToID(property);
                     if (material->HasProperty(propertyId))
                         LogFloorColor(phase, id, slot, "shared-material", property, material->GetColor(propertyId));
-                    if (block->HasColor(propertyId))
-                        LogFloorColor(phase, id, slot, "slot-block", property, block->GetColor(propertyId));
                 }
             }
         }
