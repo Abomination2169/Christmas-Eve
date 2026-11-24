@@ -68,7 +68,7 @@ static modloader::ModInfo modInfo{MOD_ID, VERSION, 0};
 
 
 namespace {
-    constexpr const char* floorDiagnosticBuild = "menu-floor-restoration-v2";
+    constexpr const char* floorDiagnosticBuild = "menu-floor-restoration-v3";
     SafePtrUnity<MeshRenderer> menuFloor;
     Color menuFloorBaseline{};
     bool hasMenuFloorBaseline = false;
@@ -93,6 +93,31 @@ namespace {
         floorRestorationActive = true;
         loggedFloorRestore = false;
     }
+}
+
+// Unity copies this block into the renderer. Restore the caller's value after
+// submission in case the same block is reused for other environment meshes.
+MAKE_HOOK_MATCH(MenuFloorSetPropertyBlock,
+    static_cast<void (Renderer::*)(MaterialPropertyBlock*)>(&Renderer::SetPropertyBlock),
+    void, Renderer* self, MaterialPropertyBlock* block) {
+    if (block && hasMenuFloorBaseline && menuFloor &&
+        self == static_cast<Renderer*>(menuFloor.ptr()) && getModConfig().EnableWhiteEnv.GetValue()) {
+        static const int colorProperty = Shader::PropertyToID("_Color");
+        const auto incoming = block->GetColor(colorProperty);
+        // Ignore neutral and unset overrides, including the guard's own writes.
+        if (incoming.r != incoming.g || incoming.g != incoming.b) {
+            block->SetColor(colorProperty, menuFloorBaseline);
+            MenuFloorSetPropertyBlock(self, block);
+            block->SetColor(colorProperty, incoming);
+            if (!loggedFloorRestore) {
+                loggedFloorRestore = true;
+                INFO("[MenuFloorRestoration] intercepted BasicMenuGround _Color before submission RGBA=({},{},{},{})",
+                     incoming.r, incoming.g, incoming.b, incoming.a);
+            }
+            return;
+        }
+    }
+    MenuFloorSetPropertyBlock(self, block);
 }
 
 DECLARE_CLASS_CODEGEN(Christmas, FloorRendererSample, UnityEngine::MonoBehaviour) {
@@ -310,6 +335,7 @@ MOD_EXTERN_FUNC void late_load() noexcept {
     INFO("Installing hooks...");
     INSTALL_HOOK(PaperLogger, FestiveLogoInit);
     INSTALL_HOOK(PaperLogger, OverrideEnvironmentColors);
+    INSTALL_HOOK(PaperLogger, MenuFloorSetPropertyBlock);
     INSTALL_HOOK(PaperLogger, SnowInit);
     INSTALL_HOOK(PaperLogger, ChristmasEveResultsActivate);
     INSTALL_HOOK(PaperLogger, ChristmasEveResultsDeactivate);
