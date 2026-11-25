@@ -1,6 +1,6 @@
 ## 🎄 Christmas Eve Theme
 
-![Christmas Eve preview](ChristmasEve-README.png)
+![Christmas Eve preview](ChristmasEve-README.png)](https://www.youtube.com/watch?v=rf5HaCuaLBY)
 
 ▶️ **Watch on YouTube:** https://www.youtube.com/watch?v=rf5HaCuaLBY
 
