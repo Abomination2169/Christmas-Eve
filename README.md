@@ -1,6 +1,10 @@
-# Christmas Eve v1.0.0 🎄 — Beat Saber Quest 1.40.8
+## 🎄 Christmas Eve Theme
 
 ![Christmas Eve preview](ChristmasEve-README.png)
+
+▶️ **Watch on YouTube:** https://www.youtube.com/watch?v=rf5HaCuaLBY
+
+Happy Holidays!
 
 Celebrate Christmas Eve on a peaceful, snowy alpine winter night.
 
