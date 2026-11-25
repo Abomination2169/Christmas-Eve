@@ -12,7 +12,7 @@ Compatible with: Beat Saber 1.40.8 (Quest)
 
 > **In Loving Memory**
 >
-> The aurora that illuminates the S-rank celebration is dedicated to my beloved grandmother, Martha Eichenlaub, who passed away on November 23, 2026.
+> The aurora that illuminates the S-rank celebration is dedicated to my beloved grandmother, Martha Eichenlaub, who left us on November 23, 2026.
 >
 > May its gentle lights shine in remembrance of her love, her life, and the memories that will forever remain.
 >
