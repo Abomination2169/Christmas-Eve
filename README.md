@@ -1,8 +1,8 @@
 ## 🎄 Christmas Eve Theme
 
-[![Holiday Theme Switcher - Beat Saber](ChristmasEve-README.png)](https://www.youtube.com/watch?v=z8a1MtGv3DM)
+[![Christmas Eve Theme - Beat Saber](ChristmasEve-README.png)](https://www.youtube.com/watch?v=rf5HaCuaLBY)
 
-▶️ **Watch on YouTube:** https://www.youtube.com/watch?v=z8a1MtGv3DM
+▶️ **Watch on YouTube:** https://www.youtube.com/watch?v=rf5HaCuaLBY
 
 Happy Holidays!
 
